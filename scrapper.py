@@ -82,20 +82,15 @@ if __name__ == "__main__":
     else:
         print("No data extracted from the last page.")
 
-    # Load the main and substituents CSV files
     main_df = pd.read_csv(main_csv_path)
     substituents_df = pd.read_csv(substituents_csv_path)
 
-    # Merge the substituents into the main dataframe based on 'number'
     merged_df = pd.merge(main_df, substituents_df, on='number', how='left')
 
-    # Drop the old 'substituent' column and rename the new one
     merged_df.drop(columns=['substituent_x'], inplace=True)
     merged_df.rename(columns={'substituent_y': 'substituent'}, inplace=True)
 
-    # Reorder columns to make 'substituent' the second column
     columns_order = ['number', 'substituent', 'σm', 'σp', 'F', 'R', 'References']
     merged_df = merged_df[columns_order]
 
-    # Save the combined dataframe to a new CSV file
     save_dataframe_to_csv(merged_df, combined_csv_path)
