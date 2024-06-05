@@ -52,9 +52,9 @@ def save_dataframe_to_csv(df, csv_path):
 
 
 if __name__ == "__main__":
-    pdf_path = 'pdfik2.pdf'
+    pdf_path = 'pdf/tabela2.pdf'
     pages = '4'
-    combined_csv_path = 'combined_new_tabela.csv'
+    combined_csv_path = 'csv/final_tabela2.csv'
 
 
     expected_columns = ["n", "SMILES", "σ_meta_exp", "σ_meta_calc", "σ_para_exp", "σ_para_calc"]

@@ -53,13 +53,14 @@ def save_dataframe_to_csv(df, csv_path):
 
 
 if __name__ == "__main__":
-    pdf_path = 'pdfik.pdf'
+    pdf_path = 'pdf/tabela1.pdf'
     main_pages = '1-7'
     last_page = '8'
-    main_csv_path = 'tabela1.csv'
-    last_page_csv_path = 'tabela_last_page.csv'
-    combined_csv_path = 'combined_tabela.csv'
-    substituents_csv_path = 'substituents1.csv'
+    main_csv_path = 'csv/tabela1.csv'
+    last_page_csv_path = 'csv/tabela_last_page.csv'
+    combined_csv_path = 'csv/final_tabela1.csv'
+    substituents_csv_path = 'csv/substituents.csv'
+    extra_data_csv_path = 'csv/510-530.csv'  # Ścieżka do dodatkowego pliku CSV
 
     combined_df_main = extract_tables_from_pdf(pdf_path, main_pages, flavor='stream')
     combined_df_last_page = extract_tables_from_pdf(pdf_path, last_page, flavor='stream')
@@ -82,15 +83,38 @@ if __name__ == "__main__":
     else:
         print("No data extracted from the last page.")
 
+    # Wczytanie głównej tabeli i dodatkowych danych
     main_df = pd.read_csv(main_csv_path)
+    extra_df = pd.read_csv(extra_data_csv_path)
+
+    # Dopisanie rekordów z extra_df do main_df, z pominięciem pierwszego wiersza z nagłówkami
+    combined_df = pd.concat([main_df, extra_df], ignore_index=True)
+    combined_df = combined_df.drop_duplicates(subset='number', keep='first')
+
+    # Zapisanie połączonego DataFrame do pliku CSV
+    save_dataframe_to_csv(combined_df, combined_csv_path)
+
+    # Wczytanie danych z substituents.csv
+    combined_df = pd.read_csv(combined_csv_path)
     substituents_df = pd.read_csv(substituents_csv_path)
 
-    merged_df = pd.merge(main_df, substituents_df, on='number', how='left')
+    # Sprawdzenie nazw kolumn w kombinowanym pliku i substituentach
+    print("Combined DataFrame columns:", combined_df.columns.tolist())
+    print("Substituents DataFrame columns:", substituents_df.columns.tolist())
 
-    merged_df.drop(columns=['substituent_x'], inplace=True)
-    merged_df.rename(columns={'substituent_y': 'substituent'}, inplace=True)
+    # Połączenie z substituentami
+    merged_df = pd.merge(combined_df, substituents_df, on='number', how='left')
+
+    # Usunięcie zduplikowanej kolumny 'substituent_x'
+    if 'substituent_x' in merged_df.columns:
+        merged_df.drop(columns=['substituent_x'], inplace=True)
+
+    # Zmiana nazwy kolumny 'substituent_y' na 'substituent'
+    if 'substituent_y' in merged_df.columns:
+        merged_df.rename(columns={'substituent_y': 'substituent'}, inplace=True)
 
     columns_order = ['number', 'substituent', 'σm', 'σp', 'F', 'R', 'References']
     merged_df = merged_df[columns_order]
 
+    # Zapisanie ostatecznego DataFrame
     save_dataframe_to_csv(merged_df, combined_csv_path)

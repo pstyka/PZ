@@ -1,0 +1,16 @@
+118
+203
+277
+345
+351
+384
+404
+406
+475
+
+38 null
+293 null
+43 null
+528
+
+i dopisac numery rekordow.
